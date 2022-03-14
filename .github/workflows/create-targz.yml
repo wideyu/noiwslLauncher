@@ -29,9 +29,8 @@ jobs:
           sudo dpkg -i --force-depends-version libdebian-installer4_0.121ubuntu2_amd64.deb
           curl -L -o gnome-desktop-on-wsl.zip https://github.com/wjt/gnome-desktop-on-wsl/archive/master.zip
           unzip -o gnome-desktop-on-wsl.zip
-          cd gnome-desktop-on-wsl-main
-          ${{ github.workspace }}/create-targz.sh
-          sudo mv ${{ github.workspace }}/x64/install.tar.gz ${{ github.workspace }}/install.tar.gz
+          ${{ github.workspace }}/gnome-desktop-on-wsl-main/create-targz.sh
+          sudo mv ${{ github.workspace }}/gnome-desktop-on-wsl-main/x64/install.tar.gz ${{ github.workspace }}/install.tar.gz
           ls ${{ github.workspace }}
           echo "::set-output name=date::$(date +'%y%m%d%H%M')"
 
