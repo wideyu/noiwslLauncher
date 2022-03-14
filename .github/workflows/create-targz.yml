@@ -23,8 +23,8 @@ jobs:
         id: create
         run: |
           curl -O http://archive.ubuntu.com/ubuntu/pool/main/libd/libdebian-installer/libdebian-installer4_0.121ubuntu2_amd64.deb
-          sudo dpkg -i --force-depends-version libdebian-installer4_0.121ubuntu2_amd64.deb
           sudo apt-get -y install cdebootstrap
+          sudo dpkg -i --force-depends-version libdebian-installer4_0.121ubuntu2_amd64.deb
           curl -L -o gnome-desktop-on-wsl.zip https://github.com/wjt/gnome-desktop-on-wsl/archive/master.zip
           unzip -o gnome-desktop-on-wsl.zip
           cd gnome-desktop-on-wsl-main
