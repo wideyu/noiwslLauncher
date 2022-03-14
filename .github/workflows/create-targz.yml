@@ -31,14 +31,14 @@ jobs:
           unzip -o gnome-desktop-on-wsl.zip
           cd gnome-desktop-on-wsl-main
           ./create-targz.sh
-          ls -l x64/install.tar.gz
+          sudo mv ./x64/install.tar.gz ./install.tar.gz
           echo "::set-output name=date::$(date +'%y%m%d%H%M')"
 
       - name: Release targz
         uses: svenstaro/upload-release-action@2.2.0
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: x64/install.tar.gz
+          file: install.tar.gz
           tag: v${{ steps.create.outputs.date }}
           overwrite: true
           file_glob: true
