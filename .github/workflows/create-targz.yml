@@ -23,7 +23,9 @@ jobs:
         id: create
         run: |
           sudo apt-get -y install cdebootstrap
-          git clone git@github.com:wjt/gnome-desktop-on-wsl.git
+          curl -L -o gnome-desktop-on-wsl.zip https://github.com/wjt/gnome-desktop-on-wsl/archive/master.zip
+          unzip -o gnome-desktop-on-wsl.zip
+          cd gnome-desktop-on-wsl-main
           sh create-targz.sh
           ls -l x64/install.tar.gz
           echo "::set-output name=date::$(date +'%y%m%d%H%M')"
