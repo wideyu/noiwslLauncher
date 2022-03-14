@@ -4,12 +4,6 @@ name: CI
 
 # Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the main branch
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
-
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
@@ -25,15 +19,20 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      # Runs a single command using the runners shell
       - name: Create targz
+        id: create
         run: |
           sudo apt-get -y install cdebootstrap
           git clone git@github.com:wjt/gnome-desktop-on-wsl.git
           sh create-targz.sh
-
-      # Runs a set of commands using the runners shell
-      - name: Release targz
-        run: |
           ls -l x64/install.tar.gz
-          echo test, and deploy your project.
+          echo "::set-output name=date::$(date +'%y%m%d%H%M')"
+
+      - name: Release targz
+        uses: svenstaro/upload-release-action@2.2.0
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: x64/install.tar.gz
+          tag: v${{ steps.create.outputs.date }}
+          overwrite: true
+          file_glob: true
