@@ -10,6 +10,7 @@ Blabla.exe ~ New folder, copy&rename exe, install to Blabla distro.
 NOIwsl.exe D:\rootfs.tar.gz ~ Install D:\rootfs.tar.gz to NOIwsl distro.
 
 ## Download
+链接: https://pan.baidu.com/s/1KIStGGAiAy-9p78NHGxPfA 提取码: v77w
 
 ## Install
 * 解压文件到自定文件夹，比如D:\wsl\noiwsl-20；
