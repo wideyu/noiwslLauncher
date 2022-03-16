@@ -21,7 +21,7 @@ Blabla.exe ~ New folder, copy&rename exe, install to Blabla distro.
 
 NOIwsl.exe D:\rootfs.tar.gz ~ Install D:\rootfs.tar.gz to NOIwsl distro.
 
-## Faq
+## FAQ
 * Why NOIwsl?
 
 在实体机、虚拟机、WSL2安装NOILinux各有各自的好处，NOIwsl在WSL2提供远程桌面方式使用NOILinux图形桌面。
