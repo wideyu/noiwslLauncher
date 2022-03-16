@@ -1,11 +1,11 @@
 # NOIwsl: NOILinux in Windows WSL2
 
 ## Usage
-NOIwsl.exe - Install intall.tar.gz to NOIwsl distro.
+NOIwsl.exe ~ Install intall.tar.gz to NOIwsl distro.
 
-Blabla.exe - New folder, copy&rename exe, install to Blabla distro.
+Blabla.exe ~ New folder, copy&rename exe, install to Blabla distro.
 
-NOIwsl.exe D:\rootfs.tar.gz - Install D:\rootfs.tar.gz to NOIwsl distro.
+NOIwsl.exe D:\rootfs.tar.gz ~ Install D:\rootfs.tar.gz to NOIwsl distro.
 
 
 ## faq
