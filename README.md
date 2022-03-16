@@ -12,7 +12,7 @@ NOIwsl.exe D:\rootfs.tar.gz ~ Install D:\rootfs.tar.gz to NOIwsl distro.
 ## Download
 
 ## Install
-* 解压文件到D:\wsl\noiwsl-20，或自定文件夹；
+* 解压文件到自定文件夹，比如D:\wsl\noiwsl-20；
 * 运行D:\wsl\noiwsl-20\NOIwsl.exe，按提示输入新建用户名、密码。
 
 ## Faq
