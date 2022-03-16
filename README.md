@@ -26,6 +26,10 @@ NOIwsl.exe D:\rootfs.tar.gz ~ Install D:\rootfs.tar.gz to NOIwsl distro.
 
 在实体机、虚拟机、WSL2安装NOILinux各有各自的好处，NOIwsl在WSL2提供远程桌面方式使用NOILinux图形桌面。
 
+* Why Pascal?
+
+作者学的第一个编程语言是Pascal，NOIwsl Launcher是在NOIwsl中使用NOILinux官方的Lazarus/freepascal编写、编译。
+
 * 如有多个WSL Distro 都启用了xrdp，只有第一个启动的可以正常连接远程桌面。
 ```bash
 # terminate other distro
