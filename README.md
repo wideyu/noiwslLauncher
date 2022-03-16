@@ -23,7 +23,8 @@ NOIwsl.exe D:\rootfs.tar.gz ~ Install D:\rootfs.tar.gz to NOIwsl distro.
 
 ## Faq
 * Why NOIwsl?
-实体机安装NOILinux、虚拟机安装NOILinux、WSL2安装NOILinux各有各自的好处，NOIwsl提供WSL2方式。
+
+在实体机、虚拟机、WSL2安装NOILinux各有各自的好处，NOIwsl在WSL2提供远程桌面方式使用NOILinux图形桌面。
 
 * 如有多个WSL Distro 都启用了xrdp，只有第一个启动的可以正常连接远程桌面。
 ```bash
