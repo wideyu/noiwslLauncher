@@ -1,6 +1,8 @@
 # NOIwsl
 
-NOILinux in Windows WSL2
+NOILinux in Windows WSL2.
+
+从官方NOILinux提取，安装到Windows WSL2环境。可以从Terminal访问，或通过远程桌面访问GUI Desktop。
 
 ## Usage
 NOIwsl.exe ~ Install intall.tar.gz to NOIwsl distro.
