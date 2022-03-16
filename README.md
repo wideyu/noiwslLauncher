@@ -6,6 +6,7 @@ NOILinux in Windows WSL2.
 
 ## Download
 链接: https://pan.baidu.com/s/1oC_-u-55CNUGvKZBeiGIrA 提取码: ngt5
+
 https://github.com/wideyu/noiwsl
 
 ## Install
