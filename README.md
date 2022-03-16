@@ -3,11 +3,10 @@
 NOILinux in Windows WSL2.
 
 从官方NOILinux提取，安装到Windows WSL2环境。可以从Terminal访问，或通过远程桌面访问NOILinux的图形桌面。
+https://github.com/wideyu/noiwsl
 
 ## Download
 链接: https://pan.baidu.com/s/1oC_-u-55CNUGvKZBeiGIrA 提取码: ngt5
-
-https://github.com/wideyu/noiwsl
 
 ## Install
 * 解压文件到自定文件夹，比如D:\wsl\noiwsl-20；
