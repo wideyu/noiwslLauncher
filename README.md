@@ -1,4 +1,6 @@
-# NOIwsl: NOILinux in Windows WSL2
+# NOIwsl
+
+NOILinux in Windows WSL2
 
 ## Usage
 NOIwsl.exe ~ Install intall.tar.gz to NOIwsl distro.
