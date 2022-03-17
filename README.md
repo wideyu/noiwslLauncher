@@ -2,7 +2,7 @@
 
 NOILinux in Windows WSL2.
 
-从官方NOILinux提取，安装到Windows WSL2环境。可以从Terminal访问，或通过远程桌面访问NOILinux的图形桌面。
+从官方[NOILinux](https://www.noi.cn/gynoi/jsgz/2021-07-16/732450.shtml)提取，安装到Windows WSL2环境。可以从Terminal访问，或通过远程桌面访问NOILinux的图形桌面。
 https://github.com/wideyu/noiwsl
 
 ## Download
@@ -43,3 +43,7 @@ wsl --shutdown
 wsl -d noiwsl
 # mstsc.exe /v:localhost
 ```
+
+* NOI Linux 2.0?
+
+[NOI Linux 2.0版]https://www.noi.cn/gynoi/jsgz/2021-07-16/732450.shtml（Ubuntu-NOI 2.0版）已经基于Ubuntu 20.04.1版定制完成，现正式对外发布。根据NOI科学委员会决议，该系统将自2021年9月1日起作为NOI系列比赛和CSP-J/S等活动的标准环境使用。
