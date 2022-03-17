@@ -46,4 +46,4 @@ wsl -d noiwsl
 
 * NOI Linux 2.0?
 
-[NOI Linux 2.0版]https://www.noi.cn/gynoi/jsgz/2021-07-16/732450.shtml（Ubuntu-NOI 2.0版）已经基于Ubuntu 20.04.1版定制完成，现正式对外发布。根据NOI科学委员会决议，该系统将自2021年9月1日起作为NOI系列比赛和CSP-J/S等活动的标准环境使用。
+[NOI Linux 2.0版](https://www.noi.cn/gynoi/jsgz/2021-07-16/732450.shtml)（Ubuntu-NOI 2.0版）已经基于Ubuntu 20.04.1版定制完成，现正式对外发布。根据NOI科学委员会决议，该系统将自2021年9月1日起作为NOI系列比赛和CSP-J/S等活动的标准环境使用。
