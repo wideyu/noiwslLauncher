@@ -18,34 +18,47 @@ var
   WslRegisterDistribution: TWslRegisterDistribution;
   WslConfigureDistribution: TWslConfigureDistribution;
 
-  h: handle;
+  h: handle = 0;
   user: string;
   cmd: wideString;
   wslapi: TLibHandle;
   retry, i: integer;
-  hr: hResult;
-  ec: DWORD;
-  sDISTRO, sDIR: wideString;
-  DISTRO: PCWSTR;
-  rs: ansiString;
-  sl: tStringList;
+  hr: hRESULT = 0;
+  exitCode: DWORD = 0;
+  aDISTRO, aDIR: ansiString;
+  wDISTRO: wideString;
+  pDISTRO: PCWSTR;
+  outputStr: ansiString;
+  outputWide: wideString;
+  outputList: tStringList;
+  aTARGZ: ansiString = 'install.tar.gz';
 
-const
-  TARGZ: wideString = 'install.tar.gz';
+function RunWsl(const commands:array of string;out outputString:wideString):boolean;
+var
+  outputAnsi: ansiString;
+  outputPCWSTR: PCWSTR;
+begin
+  result := RunCommand('wsl.exe', commands, outputAnsi);
+  outputPCWSTR := @outputAnsi[1];
+  outputString := StrPas(outputPCWSTR);
+end;
 
 function WslIsOptionalComponentInstalled(): boolean; begin
-  wslapi := LoadLibrary('wslapi.dll');
-  WslIsDistributionRegistered := TWslIsDistributionRegistered(GetProcedureAddress(wslapi, 'WslIsDistributionRegistered'));
-  WslLaunch := TWslLaunch(GetProcedureAddress(wslapi, 'WslLaunch'));
-  WslLaunchInteractive := TWslLaunchInteractive(GetProcedureAddress(wslapi, 'WslLaunchInteractive'));
-  WslRegisterDistribution := TWslRegisterDistribution(GetProcedureAddress(wslapi, 'WslRegisterDistribution'));
-  WslConfigureDistribution := TWslConfigureDistribution(GetProcedureAddress(wslapi, 'WslConfigureDistribution'));
-  result := (wslapi <> DynLibs.NilHandle)
-    and (WslIsDistributionRegistered <> nil)
-    and (WslLaunch <> nil)
-    and (WslRegisterDistribution <> nil)
-    and (WslLaunchInteractive <> nil)
-    and (WslConfigureDistribution <> nil);
+  try
+    writeln();
+    result := RunWsl(['--list', '--verbose'], outputWide);
+    if result then writeln(outputWide);
+    result := result and (Pos('VERSION', outputWide)>0);
+    wslapi := LoadLibrary('wslapi.dll');
+    WslIsDistributionRegistered := TWslIsDistributionRegistered(GetProcedureAddress(wslapi, 'WslIsDistributionRegistered'));
+    WslLaunch := TWslLaunch(GetProcedureAddress(wslapi, 'WslLaunch'));
+    WslLaunchInteractive := TWslLaunchInteractive(GetProcedureAddress(wslapi, 'WslLaunchInteractive'));
+    WslRegisterDistribution := TWslRegisterDistribution(GetProcedureAddress(wslapi, 'WslRegisterDistribution'));
+    WslConfigureDistribution := TWslConfigureDistribution(GetProcedureAddress(wslapi, 'WslConfigureDistribution'));
+    result := result and (wslapi <> DynLibs.NilHandle) and (WslIsDistributionRegistered <> nil) and (WslLaunch <> nil) and (WslRegisterDistribution <> nil) and (WslLaunchInteractive <> nil) and (WslConfigureDistribution <> nil);
+  except
+    result := false;
+  end;
 end;
 
 
@@ -61,13 +74,12 @@ begin
   writeln('!                                  Github.com/wideyu/noiwsl  wideyu@qq.com  !');
   writeln('!---------------------------------------------------------------------------!');
 
-  sDISTRO := ExtractFileName(ParamStr(0));
-  sDIR := ExtractFileDir(ParamStr(0));
-  if ExtractFileExt(sDISTRO)<>'' then
-    sDISTRO := copy(sDISTRO,1,rpos(ExtractFileExt(sDISTRO),sDISTRO)-1);
-  DISTRO := @sDISTRO[1];
-
-try
+  aDISTRO := ExtractFileName(ParamStr(0));
+  if ExtractFileExt(aDISTRO)<>'' then
+    aDISTRO := copy(aDISTRO,1,rpos(ExtractFileExt(aDISTRO),aDISTRO)-1);
+  wDISTRO := UnicodeString(aDISTRO);
+  pDISTRO := @wDISTRO[1];
+  aDIR := ExtractFileDir(ParamStr(0));
 
   if not WslIsOptionalComponentInstalled() then begin
     writeln('Install Windows WSL2 first.');
@@ -76,89 +88,84 @@ try
     exit;
   end;
 
-  if not WslIsDistributionRegistered(DISTRO) then begin
+  if not WslIsDistributionRegistered(pDISTRO) then begin
 
-    (*if not RunCommand('wsl.exe --set-default-version 2', rs) then begin
-      writeln('Install Windows WSL2 first.');
-      write('Press Enter to exit...');
-      readln();
-      exit;
-    end;*)
-
-    write('Installing '+DISTRO+', this may take a few minutes... ');
-    if ParamStr(1) <> '' then TARGZ := ParamStr(1);
-    //if WslRegisterDistribution(DISTRO, @TARGZ[1])=0 then
-    if RunCommand('wsl.exe --import '+sDISTRO+' '+sDIR+' '+TARGZ+' --version 2', rs) then
-      if WslIsDistributionRegistered(DISTRO) then
-        writeln('OK.');
-    if not WslIsDistributionRegistered(DISTRO) then begin
+    write('Installing '+aDISTRO+', this may take a few minutes... ');
+    if ParamStr(1) <> '' then aTARGZ := ParamStr(1);
+    //if WslRegisterDistribution(pDISTRO, @wTARGZ[1])=0 then
+    if RunWsl(['--import', aDISTRO, aDIR, aTARGZ, '--version', '2'], outputWide) then
+    if WslIsDistributionRegistered(pDISTRO) then begin
+      writeln('OK.');
+      writeln(outputWide);
+    end;
+    if not WslIsDistributionRegistered(pDISTRO) then begin
       writeln('ERROR!');
-      if not fileExists(TARGZ) then writeln(TARGZ + ' not found!');
+      writeln(outputWide);
+      if not fileExists(aTARGZ) then writeln(aTARGZ + ' not found!');
       write('Press Enter to exit...');
       readln();
     end;
 
-    if WslIsDistributionRegistered(DISTRO) then begin
+
+    if WslIsDistributionRegistered(pDISTRO) then begin
       cmd := '/opt/distrod/bin/distrod enable';
-      hr := WslLaunchInteractive(DISTRO, @cmd[1], false, ec);
+      hr := WslLaunchInteractive(pDISTRO, @cmd[1], false, exitCode);
 
       for retry := 0 to 9 do begin
         writeln('Please create a default UNIX user account. The username dose not need to match your Windows username.');
         writeln('For more informaton visit: https://aka.ms/wslusers');
         write('Enter new UNIX username: ');
         readln(user);
-        cmd := 'adduser --quiet --gecos "' + user + '" "' + user + '"';
+        cmd := UnicodeString('adduser --quiet --gecos "' + user + '" "' + user + '"');
         //cmd := 'adduser -g "' + user + '" "' + user + '"';
-        hr := WslLaunchInteractive(DISTRO, @cmd[1], false, ec);
-        if (hr<>0) or (ec<>0) then begin
-          cmd := 'deluser "' + user + '"';
-          WslLaunchInteractive(DISTRO, @cmd[1], false, ec);
+        hr := WslLaunchInteractive(pDISTRO, @cmd[1], false, exitCode);
+        if (hr<>0) or (exitCode<>0) then begin
+          cmd := UnicodeString('deluser "' + user + '"');
+          WslLaunchInteractive(pDISTRO, @cmd[1], false, exitCode);
           continue;
         end;
-        if (hr=0) and (ec=0) then break;
+        if (hr=0) and (exitCode=0) then break;
       end;
 
-      cmd := 'usermod -aG adm,dialout,cdrom,floppy,sudo,audio,dip,video,plugdev,netdev ' + user;
-      hr := WslLaunchInteractive(DISTRO, @cmd[1], false, ec);
+      cmd := UnicodeString('usermod -aG adm,dialout,cdrom,floppy,sudo,audio,dip,video,plugdev,netdev ' + user);
+      hr := WslLaunchInteractive(pDISTRO, @cmd[1], false, exitCode);
 
       //cmd := 'echo -e "[user]\ndefault=' + user + '" >> /etc/wsl.conf';
       //hr := WslLaunchInteractive(DISTRO, @cmd[1], false, ec);
-      hr := WslConfigureDistribution(DISTRO, 1000, 15);
+      hr := WslConfigureDistribution(pDISTRO, 1000, 15);
     end;
 
   end;
 
   writeln();
   writeln('-> Make sure 3389 port available, or modify /etc/xrdp/xrdp.ini');
-  RunCommand('netstat.exe -ano', rs);
+  if RunCommand('netstat.exe', ['-ano'], outputStr) then
   try
-    sl := tStringList.Create();
-    sl.Text := rs;
-    for i := 0 to sl.Count-1 do begin
-      rs := sl.Strings[i];
-      if (not rs.Contains('TCP')) and (not rs.Contains('UDP')) then
-        writeln(rs)
+    outputList := tStringList.Create();
+    outputList.Text := outputStr;
+    for i := 0 to outputList.Count-1 do begin
+      outputStr := outputList.Strings[i];
+      if (not outputStr.Contains('TCP')) and (not outputStr.Contains('UDP')) then
+        writeln(outputStr)
       else begin
-        if (not rs.Contains('TCP')) then continue;
-        if (not rs.Contains(':3389')) then continue;
-        writeln(rs);
+        if (not outputStr.Contains('TCP')) then continue;
+        if (not outputStr.Contains(':3389')) then continue;
+        writeln(outputStr);
       end;
     end;
   finally
-    sl.Free;
+    outputList.Free;
   end;
   writeln();
   writeln('-> Remote Destop: mstsc.exe /v:localhost[:3389]');
   writeln();
 
-  if WslIsDistributionRegistered(DISTRO) then begin
-    RunCommand('wsl.exe -d '+sDISTRO+' -u root -- /opt/distrod/bin/distrod enable', rs);
-    RunCommand('wsl.exe -d '+sDISTRO+' -u root -- /opt/distrod/bin/distrod start', rs);
-    WslLaunch(DISTRO, '', false, GetStdHandle(STD_INPUT_HANDLE), GetStdHandle(STD_OUTPUT_HANDLE), GetStdHandle(STD_ERROR_HANDLE), h);
+  if WslIsDistributionRegistered(pDISTRO) then begin
+    RunWsl(['-d', aDISTRO, '-u', 'root', '--exec', '/opt/distrod/bin/distrod', 'enable'], outputWide) ;
+    //writeln(outputWide);
+    WslLaunch(pDISTRO, '', false, GetStdHandle(STD_INPUT_HANDLE), GetStdHandle(STD_OUTPUT_HANDLE), GetStdHandle(STD_ERROR_HANDLE), h);
   end;
 
-finally
-  if wslapi <>  DynLibs.NilHandle then if FreeLibrary(wslapi) then wslapi:= DynLibs.NilHandle;
-end;
+  if wslapi <> DynLibs.NilHandle then if FreeLibrary(wslapi) then wslapi:= DynLibs.NilHandle;
 end.
 
