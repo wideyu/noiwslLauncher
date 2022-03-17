@@ -6,7 +6,7 @@ NOILinux in Windows WSL2.
 https://github.com/wideyu/noiwsl
 
 ## Download
-链接: https://pan.baidu.com/s/1oC_-u-55CNUGvKZBeiGIrA 提取码: ngt5
+[NOIwsl-20_0317.zip](https://pan.baidu.com/s/1cyiIclZP3kN94wPAYREa5w) 链接: https://pan.baidu.com/s/1cyiIclZP3kN94wPAYREa5w 提取码: 76he
 
 ## Install
 * 解压文件到自定文件夹，比如D:\wsl\noiwsl-20；
