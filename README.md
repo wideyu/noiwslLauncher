@@ -28,7 +28,7 @@ NOIwsl.exe D:\rootfs.tar.gz ~ Install D:\rootfs.tar.gz to NOIwsl distro.
 
 * Why Pascal?
 
-作者学的第一个编程语言是Pascal，NOIwsl Launcher是在NOIwsl中使用NOILinux官方的Lazarus/freepascal编写、编译。
+作者学的第一个编程语言是Pascal。有意思的是：NOIwsl Launcher（NOIwsl安装、启动）是在NOIwsl中，使用NOILinux官方的Lazarus/freepascal编写、编译。
 
 * 如有多个WSL Distro 都启用了xrdp，只有第一个启动的可以正常连接远程桌面。
 ```bash
