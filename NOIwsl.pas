@@ -1,7 +1,8 @@
+{$APPTYPE CONSOLE}
 program NOIwsl;
 
 uses
-  Windows, dynlibs, strutils, SysUtils, Process, Classes;
+  Windows, dynlibs, strutils, SysUtils, Process, Classes, zstream, LibLZMA, XZ;
 
 {$R *.res}
 
@@ -11,6 +12,10 @@ type
   TWslLaunchInteractive = function (distributionName: PCWSTR; command: PCWSTR; useCurrentWorkingDirectory: BOOL; var exitCode: DWORD): HRESULT; cdecl;
   TWslRegisterDistribution = function (distributionName: PCWSTR; tarGzFilename: PCWSTR):HRESULT;cdecl;
   TWslConfigureDistribution = function (distributionName: PCWSTR; defaultUID: ULONG; wslDistributionFlags: BYTE): HRESULT; cdecl;
+
+const
+  BufferSize=128*1024;
+
 var
   WslIsDistributionRegistered: TWslIsDistributionRegistered;
   WslLaunch: TWslLaunch;
@@ -25,12 +30,13 @@ var
   retry, i: integer;
   hr: hRESULT = 0;
   exitCode: DWORD = 0;
-  aDISTRO, aDIR: ansiString;
+  aDISTRO, aDIR, aPATH: ansiString;
   wDISTRO: wideString;
   pDISTRO: PCWSTR;
   outputStr: ansiString;
   outputWide: wideString;
   outputList: tStringList;
+  aTARXZ: ansiString = 'rootfs.tar.xz';
   aTARGZ: ansiString = 'install.tar.gz';
 
 function RunWsl(const commands:array of string;out outputString:wideString):boolean;
@@ -55,24 +61,124 @@ function WslIsOptionalComponentInstalled(): boolean; begin
     WslLaunchInteractive := TWslLaunchInteractive(GetProcedureAddress(wslapi, 'WslLaunchInteractive'));
     WslRegisterDistribution := TWslRegisterDistribution(GetProcedureAddress(wslapi, 'WslRegisterDistribution'));
     WslConfigureDistribution := TWslConfigureDistribution(GetProcedureAddress(wslapi, 'WslConfigureDistribution'));
-    result := result and (wslapi <> DynLibs.NilHandle) and (WslIsDistributionRegistered <> nil) and (WslLaunch <> nil) and (WslRegisterDistribution <> nil) and (WslLaunchInteractive <> nil) and (WslConfigureDistribution <> nil);
+    result := result and (wslapi <> DynLibs.NilHandle);
   except
     result := false;
   end;
 end;
 
+function xz2gz(xzf:string; gzf:string): boolean;
+var
+gz: TGZFileStream;
+InFile: TStream;
+DeComp:TXZDecompressionStream;
+BUffer:array[0..BufferSize-1] of Byte;
+count:integer;
+show:integer;
+begin
+  result := false;
+  if LoadLZMADLL then
+  begin
+      gz := TGZFileStream.Create(gzf,gzOpenWrite);
+      try
+          InFile := TFileStream.Create(xzf, fmOpenRead + fmShareDenyWrite);
+          Decomp := TXZDecompressionStream.Create(InFile);
+          try
+            show := 0;
+            while True do
+            begin
+              Count:=Decomp.Read(Buffer,BufferSize);
+              if Count<>0 then gz.WriteBuffer(Buffer,Count) else Break;
+              show := show + Count;
+              if show > 100*1024*1024 then begin
+                write('.');
+                show := 0;
+              end;
+            end;
+            writeln('OK.');
+          finally
+            DeComp.Free;
+            InFile.Free;
+          end;
+      finally
+        gz.Free;
+      end;
+      result := true;
+      UnloadLZMADLL;
+   end;
+end;
+
+procedure checkFiles();
+begin
+    if ParamStr(1) <> '' then begin
+      if lowerCase(ExtractFileExt(ParamStr(1))) = '.xz' then begin
+        aTARXZ := ParamStr(1);
+        aTARGZ := aPATH + ChangeFileExt(ExtractFileName(aTARXZ), '.gz');
+      end else
+      if lowerCase(ExtractFileExt(ParamStr(1))) = '.gz' then begin
+        aTARXZ := '';
+        aTARGZ := paramStr(1);
+      end else begin
+        writeln('Only tar.xz tar.gz supported.');
+        write('Press Enter to exit...');
+        readln();
+        halt;
+      end;
+    end;
+    if aTARXZ<>'' then begin
+      if not fileExists(aTARXZ) then begin
+        writeln(aTARXZ+' not found.');
+        write('Press Enter to exit...');
+        readln();
+        halt;
+      end;
+    end else begin
+      if not fileExists(aTARGZ) then begin
+        writeln(aTARGZ+' not found.');
+        write('Press Enter to exit...');
+        readln();
+        halt;
+      end;
+    end;
+end;
+
+procedure checkPorts();
+begin
+    writeln();
+  writeln('-> Make sure 3389 port available, or modify /etc/xrdp/xrdp.ini');
+  if RunCommand('netstat.exe', ['-ano'], outputStr) then
+  try
+    outputList := tStringList.Create();
+    outputList.Text := outputStr;
+    for i := 0 to outputList.Count-1 do begin
+      outputStr := outputList.Strings[i];
+      if (not outputStr.Contains('TCP')) and (not outputStr.Contains('UDP')) then
+        writeln(outputStr)
+      else begin
+        if (not outputStr.Contains('TCP')) then continue;
+        if (not outputStr.Contains(':3389')) then continue;
+        writeln(outputStr);
+      end;
+    end;
+  finally
+    outputList.Free;
+  end;
+  writeln();
+  writeln('-> Remote Destop: mstsc.exe /v:localhost[:3389]');
+  writeln();
+end;
 
 begin
-  writeln('!---------------------------------------------------------------------------!');
-  writeln('! NOIwsl: NOILinux in Windows WSL2                                          !');
-  writeln('!                                                                           !');
-  writeln('! Usage:                                                                    !');
-  writeln('! NOIwsl.exe - Install intall.tar.gz to NOIwsl distro.                      !');
-  writeln('! Blabla.exe - New folder, copy&rename exe, install to Blabla distro.       !');
-  writeln('! NOIwsl.exe D:\rootfs.tar.gz - Install D:\rootfs.tar.gz to NOIwsl distro.  !');
-  writeln('!                                                                           !');
-  writeln('!                                  Github.com/wideyu/noiwsl  wideyu@qq.com  !');
-  writeln('!---------------------------------------------------------------------------!');
+  writeln();
+  writeln(' NOIwsl: NOILinux in Windows WSL2                                            ');
+  writeln('=============================================================================');
+  writeln(' Usage:                                                                      ');
+  writeln(' NOIwsl.exe - Install [rootfs.tar.xz] to NOIwsl distro.                      ');
+  writeln(' Blabla.exe - New folder, copy&rename exe, install to Blabla distro.         ');
+  writeln(' NOIwsl.exe D:\install.tar.gz - Install D:\install.tar.gz to NOIwsl distro.  ');
+  writeln('                                                                             ');
+  writeln('                                  Github.com/wideyu/noiwsl  wideyu@qq.com    ');
+  writeln('=============================================================================');
 
   aDISTRO := ExtractFileName(ParamStr(0));
   if ExtractFileExt(aDISTRO)<>'' then
@@ -80,6 +186,7 @@ begin
   wDISTRO := UnicodeString(aDISTRO);
   pDISTRO := @wDISTRO[1];
   aDIR := ExtractFileDir(ParamStr(0));
+  aPATH := ExtractFilePath(ParamStr(0));
 
   if not WslIsOptionalComponentInstalled() then begin
     writeln('Install Windows WSL2 first.');
@@ -90,22 +197,40 @@ begin
 
   if not WslIsDistributionRegistered(pDISTRO) then begin
 
-    write('Installing '+aDISTRO+', this may take a few minutes... ');
-    if ParamStr(1) <> '' then aTARGZ := ParamStr(1);
+    checkFiles();
+
+    if (aTARXZ<>'') then begin
+      try
+        if not LoadLZMADLL() then begin
+          writeln(LZMA_DLL+' not found.');
+          write('Press Enter to exit...');
+          readln();
+          halt();
+        end;
+      except
+      end;
+
+      write(aTARXZ+' -> '+aTARGZ+', this may take a few minutes...');
+      if not xz2gz(aTARXZ, aTARGZ) then begin
+        write('Press Enter to exit...');
+        readln();
+        halt;
+      end;
+    end;
+
+    write('Installing '+aDISTRO+', this may take a few minutes...');
     //if WslRegisterDistribution(pDISTRO, @wTARGZ[1])=0 then
-    if RunWsl(['--import', aDISTRO, aDIR, aTARGZ, '--version', '2'], outputWide) then
-    if WslIsDistributionRegistered(pDISTRO) then begin
-      writeln('OK.');
+    if RunWsl(['--import', aDISTRO, aDIR, aTARGZ, '--version', '2'], outputWide) then begin
+      if WslIsDistributionRegistered(pDISTRO) then
+        writeln('OK.')
+      else
+        writeln('ERROR!');
       writeln(outputWide);
     end;
     if not WslIsDistributionRegistered(pDISTRO) then begin
-      writeln('ERROR!');
-      writeln(outputWide);
-      if not fileExists(aTARGZ) then writeln(aTARGZ + ' not found!');
       write('Press Enter to exit...');
       readln();
     end;
-
 
     if WslIsDistributionRegistered(pDISTRO) then begin
       cmd := '/opt/distrod/bin/distrod enable';
@@ -137,28 +262,7 @@ begin
 
   end;
 
-  writeln();
-  writeln('-> Make sure 3389 port available, or modify /etc/xrdp/xrdp.ini');
-  if RunCommand('netstat.exe', ['-ano'], outputStr) then
-  try
-    outputList := tStringList.Create();
-    outputList.Text := outputStr;
-    for i := 0 to outputList.Count-1 do begin
-      outputStr := outputList.Strings[i];
-      if (not outputStr.Contains('TCP')) and (not outputStr.Contains('UDP')) then
-        writeln(outputStr)
-      else begin
-        if (not outputStr.Contains('TCP')) then continue;
-        if (not outputStr.Contains(':3389')) then continue;
-        writeln(outputStr);
-      end;
-    end;
-  finally
-    outputList.Free;
-  end;
-  writeln();
-  writeln('-> Remote Destop: mstsc.exe /v:localhost[:3389]');
-  writeln();
+  checkPorts();
 
   if WslIsDistributionRegistered(pDISTRO) then begin
     RunWsl(['-d', aDISTRO, '-u', 'root', '--exec', '/opt/distrod/bin/distrod', 'enable'], outputWide) ;
