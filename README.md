@@ -6,7 +6,8 @@ NOILinux in Windows WSL2.
 https://github.com/wideyu/noiwsl
 
 ## Download
-[NOIwsl-20_0317.zip](https://pan.baidu.com/s/1cyiIclZP3kN94wPAYREa5w) 链接: https://pan.baidu.com/s/1cyiIclZP3kN94wPAYREa5w 提取码: 76he （可提供稳定下载的:)请联系我）
+~~[NOIwsl-20_0317.zip](https://pan.baidu.com/s/1cyiIclZP3kN94wPAYREa5w) 链接: https://pan.baidu.com/s/1cyiIclZP3kN94wPAYREa5w 提取码: 76he （可提供稳定下载的:)请联系我）~~
+安装文件改为xz压缩到2G 从[Release](https://github.com/wideyu/noiwsl/releases)下载
 
 ## Install
 * Windows需要安装好wsl2；
@@ -15,11 +16,11 @@ https://github.com/wideyu/noiwsl
 * Windows远程桌面连接Gnome desktop，mstsc.exe /v:localhost。
 
 ## Manual Usage
-NOIwsl.exe ~ Install intall.tar.gz to NOIwsl distro.
+NOIwsl.exe - Install rootfs.tar.xz to NOIwsl distro.
 
-Blabla.exe ~ New folder, copy&rename exe, install to Blabla distro.
+Blabla.exe - New folder, copy&rename exe, install to Blabla distro.
 
-NOIwsl.exe D:\rootfs.tar.gz ~ Install D:\rootfs.tar.gz to NOIwsl distro.
+NOIwsl.exe D:\install.tar.gz - Install D:\install.tar.gz to NOIwsl distro.
 
 ## FAQ
 * Why NOIwsl?
