@@ -1,6 +1,8 @@
+Laucher版本下载文件较慢，请改用[NOIwsl Script版本](https://github.com/wideyu/noiwsl) 以脚本实现提取iso安装NOIwsl。
+
 # NOIwsl Launcher
 
-NOILinux in Windows WSL2. Laucher版本下载文件较慢，请改用[NOIwsl Script版本](https://github.com/wideyu/noiwsl) 以脚本实现提取iso安装NOIwsl。
+NOILinux in Windows WSL2.
 
 2022年3月居家抗疫，完成了NOIwsl项目，方便OIer在Windows WSL2一分钟即可安装使用NOILinux GUI桌面。NOIwsl从官方[NOILinux](https://www.noi.cn/gynoi/jsgz/2021-07-16/732450.shtml)提取，安装到[Windows WSL2](https://docs.microsoft.com/windows/wsl/install)环境。可以从Terminal访问，或通过远程桌面访问NOILinux的图形桌面。
 https://github.com/wideyu/noiwsl
